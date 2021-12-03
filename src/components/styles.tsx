@@ -61,7 +61,6 @@ export const EventDetailsContainer = styled.div`
 export const Button = styled.button`
   font-weight: bold;
   cursor: pointer;
-  width: 150px;
 `;
 
 export const FavoritesWrapper = styled.li`

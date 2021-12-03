@@ -36,7 +36,7 @@ const EventInfo = ({
         <b>Country:</b> {eventData.venue.country}
       </Label>
       <Button onClick={() => handleFavourite(eventData.venue.name)}>
-        {!favourites.includes(eventData.venue.name) ? (
+        {favourites && !favourites.includes(eventData.venue.name) ? (
           <Label>Add to Favourites</Label>
         ) : (
           <Label>Remove from Favourites</Label>

@@ -19,6 +19,7 @@ const DEFAULT_NAME = "john";
 const Home = ({ query }: HomeProps) => {
   const [artistData, setArtistData] = useState<IArtistData[] | []>([]);
   const [eventData, setEventData] = useState<IEventData>();
+  const [error, setError] = useState();
 
   const [artist, setArtist] = useState<IArtist>({
     name: DEFAULT_NAME,
@@ -26,7 +27,11 @@ const Home = ({ query }: HomeProps) => {
 
   const storedItems = localStorage.getItem(FAVOURITES);
 
-  const parsedItems = storedItems && JSON.parse(storedItems);
+  let parsedItems = storedItems && JSON.parse(storedItems);
+
+  if (!parsedItems) {
+    parsedItems = [];
+  }
 
   const [favourites, setFavourites] = useState<string[]>(parsedItems);
   const artistName = query || artist.name;
@@ -35,7 +40,8 @@ const Home = ({ query }: HomeProps) => {
       .then((response) => response.json())
       .then((data) => {
         setArtist(data);
-      });
+      })
+      .catch((e) => setError(e.message));
   }, [artistName]);
 
   useEffect(() => {
@@ -43,7 +49,8 @@ const Home = ({ query }: HomeProps) => {
       .then((response) => response.json())
       .then((data) => {
         setArtistData(data);
-      });
+      })
+      .catch((e) => setError(e.message));
   }, [artistName]);
 
   useEffect(() => {
@@ -68,36 +75,43 @@ const Home = ({ query }: HomeProps) => {
 
   return (
     <HomeWrapper>
-      <div>
-        <Artist artist={artist} />
-        <div>
-          <Heading>Events</Heading>
-          {artistData &&
-            artistData.map((artistData, index) => {
-              return (
-                <EventList
-                  artistData={artistData}
-                  index={index}
-                  onClick={handleClick}
-                />
-              );
-            })}
-        </div>
-      </div>
-      {eventData && (
-        <EventInfo
-          eventData={eventData}
-          handleFavourite={handleFavourite}
-          favourites={favourites}
-        />
+      {!error && (
+        <>
+          <div>
+            <Artist artist={artist} />
+            <div>
+              <Heading>Events</Heading>
+              {artistData &&
+                artistData.length > 0 &&
+                artistData.map((artistData, index) => {
+                  return (
+                    <EventList
+                      artistData={artistData}
+                      index={index}
+                      onClick={handleClick}
+                    />
+                  );
+                })}
+            </div>
+          </div>
+          {eventData && (
+            <EventInfo
+              eventData={eventData}
+              handleFavourite={handleFavourite}
+              favourites={favourites}
+            />
+          )}
+          <ul>
+            {favourites && favourites.length > 0 && (
+              <Heading>Favourite Events</Heading>
+            )}
+            {favourites &&
+              favourites.map((favourite) => (
+                <Favourite key={favourite} favourite={favourite} />
+              ))}
+          </ul>
+        </>
       )}
-      <ul>
-        {favourites && <Heading>Favourite Events</Heading>}
-        {favourites &&
-          favourites.map((favourite) => (
-            <Favourite key={favourite} favourite={favourite} />
-          ))}
-      </ul>
     </HomeWrapper>
   );
 };
